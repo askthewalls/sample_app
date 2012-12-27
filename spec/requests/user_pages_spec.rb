@@ -42,6 +42,15 @@ describe "User pages" do
       it "should create a user" do
         expect { click_button submit }.to change(User, :count).by(1)
       end
+      
+      describe "after saving the user" do
+        before { click_button submit }
+        let(:user) { User.find_by_email('user@example.com') }
+        
+        it { should have_selector('title', text: user.name) }
+        it { should have_selector('div.alert.alert-success', text: 'Welcome') }
+        it { should have_link('Sign out') }
+      end
     end
     
     describe "with invalid password" do
@@ -50,6 +59,53 @@ describe "User pages" do
         fill_in "Email",        with: "user@example.com"
         fill_in "Password",     with: "foob"
         fill_in "Confirmation", with: "foob"
+      end
+      
+      describe "after submission" do
+        before { click_button submit }
+        
+        it { should have_selector('title', text: 'Sign up') }
+        it { should have_content('error') }
+      end
+    end
+    
+    describe "with invalid username" do
+      before do
+        fill_in "Email",        with: "user@example.com"
+        fill_in "Password",     with: "foobar"
+        fill_in "Confirmation", with: "foobar"
+      end
+      
+      describe "after submission" do
+        before { click_button submit }
+        
+        it { should have_selector('title', text: 'Sign up') }
+        it { should have_content('error') }
+      end
+    end
+
+    describe "with invalid email" do
+      before do
+        fill_in "Name",         with: "Example User"
+        fill_in "Email",        with: "user@exampl"
+        fill_in "Password",     with: "foobar"
+        fill_in "Confirmation", with: "foobar"
+      end
+      
+      describe "after submission" do
+        before { click_button submit }
+        
+        it { should have_selector('title', text: 'Sign up') }
+        it { should have_content('error') }
+      end
+    end
+
+    describe "with invalid password confirmation" do
+      before do
+        fill_in "Name",         with: "Example User"
+        fill_in "Email",        with: "user@example.com"
+        fill_in "Password",     with: "foob"
+        fill_in "Confirmation", with: "foobar"
       end
       
       describe "after submission" do
